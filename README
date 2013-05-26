@@ -4,3 +4,9 @@ prints a very basic Atom feed to stdout.
 I use this to read twitter in my feed reader instead of wading through
 the timeline.
 
+To build:
+$ cd twitter_to_atom
+$ go build
+
+To run:
+$ ./twitter_to_atom packetslave > /var/www/packetslave.atom
