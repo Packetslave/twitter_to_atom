@@ -6,13 +6,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
 const Twitter = "http://search.twitter.com/search.json?q=from%%3A%s"
 
 type Tweet struct {
-	Id   float64
-	Text string
+	Id_Str     string
+	Text       string
+	Created_At string
 }
 
 type Result struct {
@@ -44,9 +47,37 @@ func GetTweets(user string) Result {
 }
 
 func main() {
-	result := GetTweets("raymondh")
+	if len(os.Args) < 2 {
+		log.Fatal("usage: t2s username")
+	}
+	u := os.Args[1]
 
-	for _, value := range result.Results {
-		fmt.Printf("%s: %s\n", value.Id, value.Text)
+	result := GetTweets(u)
+	pubTime := time.Now()
+
+	feed := &Feed{
+		Title:   "Twitter Feed for " + u,
+		Link:    "http://twitter.com/" + u,
+		PubDate: pubTime,
+	}
+
+	for _, e := range result.Results {
+		entryTime, err := time.Parse(time.RFC1123Z, e.Created_At)
+
+		if err != nil {
+			log.Printf("failed to parsed date %q\n", e.Created_At)
+			continue
+		}
+
+		e := &Entry{
+			Title:       e.Text,
+			Link:        fmt.Sprintf("http://twitter.com/%s/status/%s", u, e.Id_Str),
+			Description: e.Text,
+			PubDate:     entryTime,
+		}
+		feed.AddEntry(e)
+	}
+	if s, err := feed.GenXml(); err == nil {
+		fmt.Printf(s)
 	}
 }
