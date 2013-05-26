@@ -1,1 +1,6 @@
-Twitter to RSS converter. Doesn't actually work yet.
+Twitter to Atom converter. Reads a twitter feed using the search API and 
+prints a very basic Atom feed to stdout. 
+
+I use this to read twitter in my feed reader instead of wading through
+the timeline.
+
