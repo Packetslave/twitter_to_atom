@@ -1,12 +1,13 @@
-Twitter to Atom converter. Reads a twitter feed using the search API and 
-prints a very basic Atom feed to stdout. 
+Twitter to RSS converter. Reads the twitter feed for one or more users and
+writes RSS files to a specified directory.
 
 I use this to read twitter in my feed reader instead of wading through
 the timeline.
 
-To build:
-$ cd twitter_to_atom
-$ go build
+To use:
+- edit config.json with your Twitter API credentials and user/output location
+- edit users.txt to list the users you want to view
 
-To run:
-$ ./twitter_to_atom packetslave > /var/www/packetslave.atom
+See http://developers.twitter.com to register for a free developer account and
+get your API keys.
+
