@@ -1,0 +1,2 @@
+feedgenerator>=1.6
+python-twitter>=1.0
