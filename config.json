@@ -1,0 +1,8 @@
+{
+    "user_file": "/Users/blanders/src/twitter_to_rss/users.txt",
+    "feed_directory": "/Users/blanders/src/twitter_to_rss/out",
+    "consumer_key": "my-consumer-key",
+    "consumer_secret": "my-consumer-secret",
+    "access_token_key": "my-access-key",
+    "access_token_secret": "my-access-secret"
+}
