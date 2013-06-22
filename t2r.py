@@ -4,6 +4,7 @@ import datetime
 import feedgenerator
 import json
 import os
+import re
 import twitter
 
 CONFIG = os.path.join(os.path.dirname(__file__), 'config.json')
@@ -36,16 +37,35 @@ def main():
                 status.created_at, '%a %b %d %H:%M:%S +0000 %Y')
 
             link = 'http://twitter.com/%s/status/%s' % (user, status.id)
+            text = FilterStatus(status.text)
 
             feed.add_item(
-                title=status.text,
-                description=status.text,
+                title=text,
+                description=text,
                 unique_id=link,
                 link=link,
                 pubdate=pubdate)
 
         with open('%s/%s.rss' % (config['feed_directory'], user), 'w') as f:
             feed.write(f, 'utf-8')
+
+
+def FilterStatus(text):
+    if text.startswith('@'):
+        users = []
+
+        while text.startswith('@'):
+            user, text = text.split(' ', 1)
+            users.append(user)
+
+        return "@: %s (%s)" % (text, ' '.join(users))
+
+    if text.startswith('RT '):
+        m = re.search(r'^RT (@\S+)\s*(.+)$', text)
+        if m:
+            return 'RT: %s (%s)' % (m.group(2), m.group(1).replace(':', ''))
+
+    return text
 
 
 if __name__ == '__main__':
