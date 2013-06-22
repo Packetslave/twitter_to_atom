@@ -37,17 +37,23 @@ def main():
                 status.created_at, '%a %b %d %H:%M:%S +0000 %Y')
 
             link = 'http://twitter.com/%s/status/%s' % (user, status.id)
-            text = FilterStatus(status.text)
 
             feed.add_item(
-                title=text,
-                description=text,
+                title=status.text,
+                description=Linkify(status.text, (x.url for x in status.urls)),
                 unique_id=link,
                 link=link,
                 pubdate=pubdate)
 
         with open('%s/%s.rss' % (config['feed_directory'], user), 'w') as f:
             feed.write(f, 'utf-8')
+
+
+def Linkify(text, urls):
+    for url in urls:
+        text = text.replace(
+            url, '<a href="%s">%s</a>' % (url, url))
+    return text
 
 
 def FilterStatus(text):
