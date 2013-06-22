@@ -1,42 +1,52 @@
-#!env python
+#!env python -*- python-indent:4 -*-
 
 import datetime
 import feedgenerator
+import json
+import os
 import twitter
 
-OUT = '/srv/www/example.com/public_html/feeds'
-USERS = '/home/example/users.txt'
+CONFIG = os.path.join(os.path.dirname(__file__), 'config.json')
 
-with open(USERS, 'r') as f:
-  screen_names = f.readlines()
+def main():
+    with open(CONFIG, 'r') as f:
+        config = json.loads(f.read())
 
-a = twitter.Api(
-  consumer_key='MYKEY',
-  consumer_secret='MYSECRET',
-  access_token_key='MYTOKENKEY',
-  access_token_secret='MYTOKENSECRET')
+    with open(config['user_file'], 'r') as f:
+        screen_names = f.readlines()
 
-for user in (x.strip() for x in screen_names):
-  feed = feedgenerator.Rss201rev2Feed(
-    title=u"Tweets for %s" % user,
-    link=u"http://twitter.com/%s" % user,
-    description=u"Tweets for %s" % user,
-    language=u"en")
+    api = twitter.Api(
+        consumer_key=config['consumer_key'],
+        consumer_secret=config['consumer_secret'],
+        access_token_key=config['access_token_key'],
+        access_token_secret=config['access_token_secret']
+    )
 
-  statuses = a.GetUserTimeline(screen_name=user)
+    for user in (x.strip() for x in screen_names):
+        feed = feedgenerator.Rss201rev2Feed(
+            title=u"Tweets for %s" % user,
+            link=u"http://twitter.com/%s" % user,
+            description=u"Tweets for %s" % user,
+            language=u"en")
 
-  for status in statuses:
-    pubdate = datetime.datetime.strptime(
-        status.created_at, '%a %b %d %H:%M:%S +0000 %Y')
+        statuses = api.GetUserTimeline(screen_name=user)
 
-    link='http://twitter.com/%s/status/%s' % (user, status.id)
+        for status in statuses:
+            pubdate = datetime.datetime.strptime(
+                status.created_at, '%a %b %d %H:%M:%S +0000 %Y')
 
-    feed.add_item(
-      title=status.text,
-      description=status.text,
-      unique_id=link,
-      link=link,
-      pubdate=pubdate)
+            link = 'http://twitter.com/%s/status/%s' % (user, status.id)
 
-  with open('%s/%s.rss' % (OUT, user), 'w') as f:
-    feed.write(f, 'utf-8')
+            feed.add_item(
+                title=status.text,
+                description=status.text,
+                unique_id=link,
+                link=link,
+                pubdate=pubdate)
+
+        with open('%s/%s.rss' % (config['feed_directory'], user), 'w') as f:
+            feed.write(f, 'utf-8')
+
+
+if __name__ == '__main__':
+    main()
