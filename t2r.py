@@ -1,5 +1,6 @@
 #!env python -*- python-indent:4 -*-
 
+import cgi
 import datetime
 import feedgenerator
 import json
@@ -40,7 +41,8 @@ def main():
 
             feed.add_item(
                 title=status.text,
-                description=Linkify(status.text, (x.url for x in status.urls)),
+                description=cgi.escape(
+                    Linkify(status.text, (x.url for x in status.urls))),
                 unique_id=link,
                 link=link,
                 pubdate=pubdate)
